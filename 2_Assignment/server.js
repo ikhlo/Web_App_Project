@@ -1,16 +1,17 @@
 require('dotenv').config(); 
 
+'use strict';
+
 const mongodb = require('mongodb');
 const MongoClient = require('mongodb').MongoClient;
 const DATABASE_NAME = 'DRAWS';
 const DATABASE_COLLECTION = 'drawings';
 
-const uri = "mongodb+srv://webapp:webapp11@cluster0.6yv33.mongodb.net/DRAWS?retryWrites=true&w=majority";
+const uri = "mongodb+srv://<user>:<password>@cluster0.6yv33.mongodb.net/DRAWS?retryWrites=true&w=majority";
 
 
 //const MONGO_URL = `mongodb://localhost:27017/${DATABASE_NAME}`;
 //const MONGO_URL = `mongodb+srv://webapp:${process.env.password}@cluster0.6yv33.mongodb.net/${DATABASE_NAME}?retryWrites=true&w=majority`
-//const uri = "mongodb+srv://webapp:webapp11@cluster0.6yv33.mongodb.net/DRAWS?retryWrites=true&w=majority";
 
 
 
@@ -25,28 +26,19 @@ const io = require('socket.io')(http);
 const fs = require('fs');
 
 
-//const MONGO_URL = `mongodb://localhost:27017/${DATABASE_NAME}`;
-//const MONGO_URL = `mongodb+srv://webapp:${process.env.password}@cluster0.6yv33.mongodb.net/${DATABASE_NAME}?retryWrites=true&w=majority`
-//const uri = "mongodb+srv://webapp:webapp11@cluster0.6yv33.mongodb.net/DRAWS?retryWrites=true&w=majority";
-
 app.use(express.static('public'));
 
+let db =null;
+let collection = null;
 
+MongoClient.connect(uri, {useNewUrlParser: true}, async function(err, client){
+  if (err) throw err;
 
-let db;
+  db = await client.db(DATABASE_NAME);
+  collection = await db.collection(DATABASE_COLLECTION);
+  client.close();
 
-async function main() {
-  let client = await new mongodb.MongoClient(uri);
-
-  await client.connect().then(client =>{
-    db = client.db(DATABASE_NAME);
-  }).catch(err=>{
-    console.log(err);
-  })
-    collection = await db.collection(DATABASE_COLLECTION);
-}
-
-main();
+})
 
 
 
@@ -66,23 +58,17 @@ io.on('connect', (socket) => {
 })
 
 async function PostDraw(drawing) {
-  await db.collection('drawings').insertOne({"draw" : drawing}).then( () =>{
-    console.log(`${drawing.user}'s drawing has been stored in mongodb !`);
-  });
-  client.close();
+  await MongoClient.connect(uri, {useNewUrlParser: true}, async function(err, client){
+    if (err) throw err;
   
-}
+    db = await client.db(DATABASE_NAME); 
 
-async function QueryDraw() {
-  let all_drawings = []
+    await db.collection('drawings').insertOne({"draw" : drawing}).then( () =>{
+    console.log(`${drawing.user}'s drawing has been stored in mongodb !`);
+    });
 
-  let db_elms = await db.collection('drawings').find().toArray();
-
-  for (let elm of db_elms){
-    all_drawings.push(elm.draw);
-  }
-
-  return all_drawings;
+    client.close();
+  });
 }
 
 app.post("/all_images", jsonParser, function (req, res) {
@@ -106,27 +92,39 @@ http.listen(port, () => {
 })
 
 app.get("/savedimg", async (req,res) =>{
-  let all_drawings = await QueryDraw();
-  let html_page = `<!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link rel="stylesheet" href="style.css">
-      <title>Saved Drawings</title>
-  </head>
-  <body>
-  <h1>All saved images</h1>
-  <ul>`;
 
-  for (let drawing of all_drawings){
-    let date = new Date(drawing.date);
-    date_str = date.toString().replace(/GMT.*/, "");
-    html_page +=`<li> This <a href="${drawing.img_url}" target="_blank">image</a> has been drawn by <b>${drawing.user}</b> on 
-    ${date_str}.</li><br><br><img style="border:1px solid black;" src='${drawing.img_url}'/><br><br>`
-  }
+  MongoClient.connect(uri, {useNewUrlParser: true }, async function(err, client){
+    if (err) throw err;
 
-  html_page += `</ul></body></html>`
+    let all_drawings = [];
+  
+    db = await client.db(DATABASE_NAME);
+    let db_elms = await db.collection('drawings').find().toArray();
+    for (let elm of db_elms){
+      all_drawings.push(elm.draw);
+    }
+  
+    let html_page = `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style.css">
+        <title>Saved Drawings</title>
+    </head>
+    <body>
+    <h1>All saved images</h1>
+    <ul>`;
 
-  res.send(html_page);
+    for (let drawing of all_drawings){
+      let date = new Date(drawing.date);
+      let date_str = date.toString().replace(/GMT.*/, "");
+      html_page +=`<li> This <a href="${drawing.img_url}" target="_blank">image</a> has been drawn by <b>${drawing.user}</b> on 
+      ${date_str}.</li><br><br><img style="border:1px solid black;" src='${drawing.img_url}'/><br><br>`
+    }
+
+    html_page += `</ul></body></html>`
+
+    res.send(html_page);
+  });
 });
