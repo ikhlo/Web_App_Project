@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>My Drawing app</title>
+</head>
+<body>
+    <h1>My drawing app 😀</h1>
+    <div class="userinfo">
+        <form autocomplete="off" onsubmit="return false">
+            <input type="text" id="username_field" placeholder="Username">
+            <button type="submit" id="submit_username" onclick="registerUser()">Submit</button>
+        </form>
+    </div>
+    <div class="userinfo">
+        <span id="user_message">You are currently not registered. Register to see your drawings<br>Should be more than 2 characters</span><br>
+        <span id="last_drawer"></span>
+    </div>
+    <div>
+        <div class="controlbar">
+            <label for="form">Canvas form</label><br>
+            <select id="form">
+                <option value="triangle">Triangle</option>
+                <option value="square">Square</option>
+                <option value="circle">Circle</option>
+            </select>
+            <br>
+        </div>
+        <div class="controlbar">
+            <label for="div_border">Canvas border color</label><br>
+            <input id="div_border" type="color"><br>
+        </div>
+        <div class="controlbar">
+            <label for="canvas_background">Canvas background color</label><br>
+            <input id="canvas_background" type="color"><br>
+        </div>
+        <div class="controlbar">
+            <label for="border_thickness">Border thickness</label><br>
+            <select id="border_thickness">
+                <option value="2">2px</option>
+                <option value="4">4px</option>
+                <option value="6">6px</option>
+                <option value="8">8px</option>
+                <option value="10">10px</option>
+                <option value="20">20px</option>
+            </select>
+            <br>
+        </div>
+        <div class="controlbar">
+            <label for="figure_size">Figure size</label><br>
+            <select id="figure_size">
+                <option value="20">20px</option>
+                <option value="40">40px</option>
+                <option value="60">60px</option>
+                <option value="80">80px</option>
+                <option value="100">100px</option>
+                <option value="200">200px</option>
+            </select>
+            <br>
+        </div>
+        <div class="controlbar">
+            <label for="pencil_color">Pencil color</label><br>
+            <input id="pencil_color" type="color"><br>
+        </div>
+        <div class="controlbar">
+            <label for="pencil_size">Pencil size</label><br>
+            <select id="pencil_size">
+                <option value="2">2px</option>
+                <option value="4">4px</option>
+                <option value="6">6px</option>
+                <option value="8">8px</option>
+                <option value="10">10px</option>
+                <option value="20">20px</option>
+            </select>
+            <br>
+        </div>
+        <div class="controlbar">
+            <label for="draw">Figure size</label><br>
+            <button onclick="draw()" disabled id="draw">Draw</button><br>
+        </div>
+        <div class="controlbar">
+            <label for="newtab">Open in a new Tab</label><br>
+            <button onclick="opentab()" disabled id="newtab">Open</button><br>
+        </div>
+    </div>
+
+    <canvas id="canvas">
+
+    </canvas>
+
+    <script src="../socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

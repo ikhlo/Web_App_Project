@@ -1,0 +1,40 @@
+* {
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.controlbar{
+    display: inline-block;
+    margin-right: 1rem;
+}
+
+.userinfo{
+    margin-bottom: 1rem;
+}
+
+#canvas{
+    margin-top: 1vh;
+    border: 2px solid black;
+    background-color: white;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    color: #1d1c1c;
+    background-color: #ddd1d1;
+}
+
+button{
+    transition: all 0.1s;
+    background-color: #FFFFFF;
+    cursor: pointer;
+}
+
+select{
+    cursor: pointer;
+}
+
+button:hover{
+    background-color: #c5bbbb;
+}
